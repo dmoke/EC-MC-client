@@ -1,5 +1,7 @@
 import os
 import shutil
+import subprocess
+import sys
 from subprocess import call
 from sys import argv, exit
 
@@ -85,6 +87,9 @@ class LaunchThread(QThread):
         self.progress = value
         self.progress_update_signal.emit(self.progress, self.progress_max, self.progress_label)
 
+    def installation_complete(self):
+        pass
+
     def update_progress_max(self, value):
         self.progress_max = value
         self.progress_update_signal.emit(self.progress, self.progress_max, self.progress_label)
@@ -108,8 +113,9 @@ class LaunchThread(QThread):
             'uuid': '',
             'token': ''
         }
-
-        call(get_minecraft_command(version=self.version_id, minecraft_directory=minecraft_directory, options=options))
+        self.installation_complete()
+        call(get_minecraft_command(version=self.version_id, minecraft_directory=minecraft_directory, options=options),
+             creationflags=subprocess.CREATE_NO_WINDOW)
 
         self.state_update_signal.emit(False)
 
