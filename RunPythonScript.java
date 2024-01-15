@@ -5,7 +5,12 @@ public class RunPythonScript {
     public static void main(String[] args) {
         try {
             // Step 1: Create and activate the virtual environment
-            ProcessBuilder pbCreate = createProcessBuilder("python", "-m", "venv", "venv");
+            ProcessBuilder pbCreate;
+            if (isWindows()) {
+                pbCreate = createProcessBuilder("python", "-m", "venv", "venv");
+            } else {
+                pbCreate = createProcessBuilder("python3", "-m", "venv", "venv");
+            }
             executeCommand(pbCreate, "Create virtual environment");
 
             ProcessBuilder pbActivate;
