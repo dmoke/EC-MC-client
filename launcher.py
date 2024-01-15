@@ -1,7 +1,7 @@
+# pyinstaller --onefile --noconsole launcher.py
 import os
 import shutil
 import subprocess
-import sys
 from subprocess import call
 from sys import argv, exit
 
@@ -12,7 +12,6 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QSpacerItem
 from minecraft_launcher_lib import forge
 from minecraft_launcher_lib.command import get_minecraft_command
 from minecraft_launcher_lib.forge import find_forge_version
-from minecraft_launcher_lib.install import install_minecraft_version
 from minecraft_launcher_lib.utils import get_minecraft_directory
 
 minecraft_directory = get_minecraft_directory().replace('minecraft', 'EngineeringClubLauncher')
