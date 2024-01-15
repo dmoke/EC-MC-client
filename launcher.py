@@ -127,8 +127,7 @@ class LaunchThread(QThread):
             'token': ''
         }
         self.installation_complete()
-        call(get_minecraft_command(version=self.version_id, minecraft_directory=minecraft_directory, options=options),
-             creationflags=subprocess.CREATE_NO_WINDOW)
+        call(get_minecraft_command(version=self.version_id, minecraft_directory=minecraft_directory, options=options))
 
         self.state_update_signal.emit(False)
 
