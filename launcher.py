@@ -20,7 +20,6 @@ VANILLA_VERSION_ID = '1.20'
 FORGE_VERSION_ID = '1.20-forge-46.0.14'
 
 
-
 def clear_and_move_mods(local_mods_dir):
     # Clear the existing mods directory
     mods_directory = os.path.join(minecraft_directory, 'mods')
@@ -36,6 +35,19 @@ def clear_and_move_mods(local_mods_dir):
             mod_path = os.path.join(local_mods_dir, mod_file)
             if os.path.isfile(mod_path) and mod_file.endswith('.jar'):
                 shutil.copy(mod_path, mods_directory)
+
+
+def move_extra_shaders():
+    client_shaders_directory = os.path.join(minecraft_directory, 'shaderpacks')
+    local_shaders_directory = 'shaderpacks'
+
+    os.makedirs(client_shaders_directory, exist_ok=True)
+
+    for shader_pack in os.listdir(local_shaders_directory):
+        shader_pack_path = os.path.join(local_shaders_directory, shader_pack)
+        client_shader_pack_path = os.path.join(client_shaders_directory, shader_pack)
+
+        shutil.copy2(shader_pack_path, client_shader_pack_path)
 
 
 def create_minecraft_directory():
@@ -117,6 +129,7 @@ class LaunchThread(QThread):
         #                                     'setProgress': self.update_progress, 'setMax': self.update_progress_max})
 
         clear_and_move_mods('mods')
+        move_extra_shaders()
         copy_servers()
         if self.username == '':
             self.username = 'testUser'
