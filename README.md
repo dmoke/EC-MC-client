@@ -1,9 +1,24 @@
 # EC-MC-client
-**Requires java8+ and python3.8+**
 
-*https://github.com/dmoke/EC-MC-client/releases/latest*
+## Prerequisites
+Ensure you have the following software installed on your system:
+- Java 8 or later
+- Python 3.8 or later
 
-run `java -jar launcher.jar` on mac to start the launcher
+If encountering `ConcurrentModificationException`, consider downgrading Java to version 8 or even Java 7.
 
-run `javaw -jar launcher.jar` for launching in no-console mode
+## Installation
+Download the latest release from [here](https://github.com/dmoke/EC-MC-client/releases/latest).
 
+## Usage
+### On Windows
+Simply run the `launcher.exe` executable to start the launcher.
+
+### On Mac
+To start the launcher on Mac, run the following command:
+```bash
+java -jar launcher.jar
+```
+
+### Important Note for Users
+User passwords are saved in the `./sl-password` file. When migrating to newer client versions, consider backing up this file to ensure a smooth transition.
