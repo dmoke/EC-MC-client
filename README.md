@@ -1,7 +1,7 @@
 # EC-MC-client
 
 ## Prerequisites
-Ensure you have the following software installed on your Windows system:
+Ensure you have the following software installed on your system:
 - Java 8 or later
 - Python 3.8 or later
 
@@ -11,10 +11,10 @@ If encountering `ConcurrentModificationException`, consider downgrading Java to 
 Download the latest release from [here](https://github.com/dmoke/EC-MC-client/releases/latest).
 
 ## Usage
-# On Windows
+### On Windows
 Simply run the `launcher.exe` executable to start the launcher.
 
-# Mac
+### On Mac
 To start the launcher on Mac, run the following command:
 ```bash
 java -jar launcher.jar
