@@ -8,10 +8,17 @@ Ensure you have the following software installed on your Windows system:
 If encountering `ConcurrentModificationException`, consider downgrading Java to version 8 or even Java 7.
 
 ## Installation
-Download the latest release from [here](https://github.com/dmoke/EC-MC-client/releases/latest). On Windows, run the `launcher.exe` executable.
+Download the latest release from [here](https://github.com/dmoke/EC-MC-client/releases/latest).
 
 ## Usage
+# On Windows
 Simply run the `launcher.exe` executable to start the launcher.
+
+# Mac
+To start the launcher on Mac, run the following command:
+```bash
+java -jar launcher.jar
+```
 
 ### Important Note for Users
 User passwords are saved in the `./sl-password` file. When migrating to newer client versions, consider backing up this file to ensure a smooth transition.
