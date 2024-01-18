@@ -37,31 +37,7 @@ public class RunPythonScript {
             } else {
                 pbInstall = createProcessBuilder("venv/bin/pip3", "install", "-r", "requirements.txt");
             }
-
-            try {
-                executeCommand(pbInstall, "Install Python dependencies");
-            } catch (Exception installationException) {
-                // If installation fails, attempt to download a specific version of PyQt5
-                System.out.println("Installation of requirements failed. Attempting to download PyQt5-Qt5==5.15.12...");
-                if (isWindows()) {
-                    pbInstall = createProcessBuilder("venv\\Scripts\\pip", "install", "PyQt5-Qt5==5.15.12");
-                } else {
-                    pbInstall = createProcessBuilder("venv/bin/pip3", "install", "PyQt5-Qt5==5.15.12");
-                }
-
-                try {
-                    executeCommand(pbInstall, "Install PyQt5-Qt5==5.15.12");
-                } catch (Exception specificVersionException) {
-                    // If the specific version is not found, attempt to download an older version
-                    System.out.println("PyQt5-Qt5==5.15.12 not found. Attempting to download PyQt5-Qt5==5.15.2...");
-                    if (isWindows()) {
-                        pbInstall = createProcessBuilder("venv\\Scripts\\pip", "install", "PyQt5-Qt5==5.15.2");
-                    } else {
-                        pbInstall = createProcessBuilder("venv/bin/pip3", "install", "PyQt5-Qt5==5.15.2");
-                    }
-                    executeCommand(pbInstall, "Install PyQt5-Qt5==5.15.2");
-                }
-            }
+            executeCommand(pbInstall, "Install Python dependencies");
 
             // Step 4: Run the launcher.py script within the virtual environment
             ProcessBuilder pbRun;
