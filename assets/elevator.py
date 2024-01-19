@@ -18,6 +18,7 @@ def find_tmp_directory(current_dir):
 
 
 def delete_files_except_sl_password_and_tmp(directory):
+    # TODO: delete only standart set of files (mostly assets)
     # Verify if the elevator.py file exists in the specified directory
     elevator_script_path = os.path.join(directory, 'tmp', 'assets', 'elevator.py')
     if not os.path.isfile(elevator_script_path):
