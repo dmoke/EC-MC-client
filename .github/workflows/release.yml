@@ -32,13 +32,11 @@ jobs:
         run: |
           mkdir launcher_release
           cp -r assets mods shaderpacks launcher_release/
-          cp dist/launcher.exe launcher_release/launcher.exe
-          cp launcher.jar launcher_release/launcher.jar
-          cp launcher.py requirements.txt launchers.dat launcher_release/
 
       - name: Build executable using pyinstaller
         run: |
           pyinstaller --onefile launcher.py
+          mv dist/launcher.exe launcher_release/launcher.exe
 
       - name: Compile Java code
         run: |
@@ -47,6 +45,7 @@ jobs:
       - name: Create JAR file
         run: |
           jar cfm RunPythonScript.jar MANIFEST.MF RunPythonScript.class
+          mv RunPythonScript.jar launcher_release/launcher.jar
 
       - name: Create Release
         id: create_release
