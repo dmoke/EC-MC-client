@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*' # Trigger the workflow on any tag
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install pyinstaller
+        run: |
+          python -m pip install pyinstaller
+
+      - name: Build executable using pyinstaller
+        run: |
+          pyinstaller --onefile launcher.py
+
+      - name: Compile Java code
+        run: |
+          javac RunPythonScript.java
+
+      - name: Create JAR file
+        run: |
+          jar cfm RunPythonScript.jar MANIFEST.MF RunPythonScript.class
+
+      - name: Create Release
+        id: create_release
+        uses: octokit/request-action@v2.x
+        with:
+          route: POST /repos/${{ github.repository }}/releases
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+
+      - name: Prepare release directory
+        run: |
+          mkdir launcher_release
+          mkdir launcher_release/target
+          cp $(find target -name '*.jar') launcher_release/ScriptlauncherApp.jar
+          echo 'java -jar ScriptlauncherApp.jar' > launcher_release/start.bat
+          echo 'pause' >> launcher_release/start.bat
+          cp -r assets mods shaderpacks launcher_release/
+          cp dist/launcher.exe launcher_release/launcher.exe
+          cp launcher.jar launcher_release/launcher.jar
+          cp launcher.py requirements.txt launchers.dat launcher_release/
+
+      - name: Archive production
+        run: |
+          zip -r launcher_release.zip launcher_release
+
+      - name: Upload Release Asset
+        id: upload_asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+        with:
+          upload_url: ${{ fromJson(steps.create_release.outputs.data).upload_url }}
+          asset_path: ./launcher_release.zip
+          asset_name: launcher_release.zip
+          asset_content_type: application/zip

@@ -17,8 +17,7 @@ def find_tmp_directory(current_dir):
     return os.path.abspath(os.path.join(current_dir, '..'))
 
 
-def delete_files_except_sl_password_and_tmp(directory):
-    # TODO: delete only standart set of files (mostly assets)
+def delete_specific_entries(directory):
     # Verify if the elevator.py file exists in the specified directory
     elevator_script_path = os.path.join(directory, 'tmp', 'assets', 'elevator.py')
     if not os.path.isfile(elevator_script_path):
@@ -28,13 +27,13 @@ def delete_files_except_sl_password_and_tmp(directory):
     # Change the working directory to the specified directory
     os.chdir(directory)
 
-    # Iterate over files and subdirectories in the regular directory
-    for entry in os.listdir(directory):
-        entry_path = os.path.join(directory, entry)
+    # Entries to be deleted
+    entries_to_delete = ['assets', 'config', 'logs', 'mods', 'shaderpacks', 'venv', 'launcher.exe', 'launcher.jar',
+                         'launcher.py', 'requirements.txt', 'servers.dat']
 
-        # Skip tmp directory and .sl_password file
-        if entry == 'tmp' or entry == '.sl_password':
-            continue
+    # Iterate over files and subdirectories in the regular directory
+    for entry in entries_to_delete:
+        entry_path = os.path.join(directory, entry)
 
         try:
             if os.path.isfile(entry_path):
@@ -79,7 +78,7 @@ if __name__ == '__main__':
     tmp_directory = find_tmp_directory(current_directory)
 
     # Delete files in client except .sl_password and tmp/
-    delete_files_except_sl_password_and_tmp(client_directory)
+    delete_specific_entries(client_directory)
 
     move_files(tmp_directory, client_directory)
 
