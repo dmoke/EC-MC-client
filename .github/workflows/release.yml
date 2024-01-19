@@ -31,7 +31,10 @@ jobs:
       - name: Prepare release directory
         run: |
           mkdir launcher_release
-          cp -r assets mods shaderpacks launcher_release/
+          cp -r assets mods config shaderpacks launcher_release/
+          cp launcher.py launcher_release/
+          cp requirements.txt launcher_release/
+          cp servers.dat launcher_release/
 
       - name: Build executable using pyinstaller
         run: |
@@ -60,7 +63,8 @@ jobs:
 
       - name: Archive production
         run: |
-          zip -r launcher_release.zip launcher_release
+          cd launcher_release
+          zip -r ../launcher_release.zip *
 
       - name: Upload Release Asset
         id: upload_asset
