@@ -36,10 +36,11 @@ jobs:
           cp requirements.txt launcher_release/
           cp servers.dat launcher_release/
 
-      - name: PyInstaller Windows
-        uses: JackMcKew/pyinstaller-action-windows@python3-10-pyinstaller-5-3
-        with:
-          path: .
+      - name: Run PyInstaller
+        run: |
+          python -m PyInstaller launcher.spec
+          ls -R dist
+          mv dist/launcher launcher_release/launcher.exe
 
       - name: Display contents of dist directory
         run: |
