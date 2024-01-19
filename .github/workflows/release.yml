@@ -39,13 +39,13 @@ jobs:
       - name: Build executable using PyInstaller on Windows
         uses: JackMcKew/pyinstaller-action-windows@main
         with:
-          path: launcher_release/src
+          path: launcher_release
           requirements: launcher_release/requirements.txt
           pypi_url: https://pypi.python.org/
           pypi_index_url: https://pypi.python.org/simple
 
       - name: Copy launcher.exe to release directory
-        run: cp launcher_release/src/dist/launcher.exe launcher_release/
+        run: cp launcher_release/dist/launcher.exe launcher_release/
 
       - name: Compile Java code
         run: |
