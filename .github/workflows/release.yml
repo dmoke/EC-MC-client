@@ -36,7 +36,8 @@ jobs:
       - name: Build executable using pyinstaller
         run: |
           pyinstaller --onefile launcher.py
-          mv dist/launcher.exe launcher_release/launcher.exe
+          ls -R dist  # Add this line to list files in the dist directory
+          mv dist/launcher launcher_release/launcher.exe
 
       - name: Compile Java code
         run: |
