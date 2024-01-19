@@ -28,6 +28,14 @@ jobs:
         run: |
           python -m pip install pyinstaller
 
+      - name: Prepare release directory
+        run: |
+          mkdir launcher_release
+          cp -r assets mods shaderpacks launcher_release/
+          cp dist/launcher.exe launcher_release/launcher.exe
+          cp launcher.jar launcher_release/launcher.jar
+          cp launcher.py requirements.txt launchers.dat launcher_release/
+
       - name: Build executable using pyinstaller
         run: |
           pyinstaller --onefile launcher.py
@@ -49,14 +57,6 @@ jobs:
           name: ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
-
-      - name: Prepare release directory
-        run: |
-          mkdir launcher_release
-          cp -r assets mods shaderpacks launcher_release/
-          cp dist/launcher.exe launcher_release/launcher.exe
-          cp launcher.jar launcher_release/launcher.jar
-          cp launcher.py requirements.txt launchers.dat launcher_release/
 
       - name: Archive production
         run: |
