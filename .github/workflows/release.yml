@@ -46,17 +46,13 @@ jobs:
         with:
           route: POST /repos/${{ github.repository }}/releases
           tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
 
       - name: Prepare release directory
         run: |
           mkdir launcher_release
-          mkdir launcher_release/target
-          cp $(find target -name '*.jar') launcher_release/ScriptlauncherApp.jar
-          echo 'java -jar ScriptlauncherApp.jar' > launcher_release/start.bat
-          echo 'pause' >> launcher_release/start.bat
           cp -r assets mods shaderpacks launcher_release/
           cp dist/launcher.exe launcher_release/launcher.exe
           cp launcher.jar launcher_release/launcher.jar
