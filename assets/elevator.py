@@ -48,6 +48,13 @@ def move_files(src_directory, dest_directory):
     for filename in os.listdir(src_directory):
         src_path = os.path.join(src_directory, filename)
         dest_path = os.path.join(dest_directory, filename)
+
+        # Check if the file already exists in the destination directory
+        if os.path.exists(dest_path):
+            # If it does, remove the existing file before moving
+            os.remove(dest_path)
+
+        # Move the file from source to destination
         shutil.move(src_path, dest_path)
 
 
