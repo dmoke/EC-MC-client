@@ -7,6 +7,5 @@ venv
 dist
 build
 launcher.exe
-launcher.spec
 _internal
 simplebackups
