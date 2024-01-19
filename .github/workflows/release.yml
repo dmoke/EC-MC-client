@@ -19,10 +19,10 @@ jobs:
           distribution: 'adopt'
           java-version: '17'
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.7
         uses: actions/setup-python@v2
         with:
-          python-version: '3.10'
+          python-version: '3.7'
 
       - name: Install pyinstaller
         run: |
@@ -36,16 +36,11 @@ jobs:
           cp requirements.txt launcher_release/
           cp servers.dat launcher_release/
 
-      - name: Build executable using PyInstaller on Windows
-        uses: JackMcKew/pyinstaller-action-windows@main
-        with:
-          path: launcher_release
-          requirements: launcher_release/requirements.txt
-          pypi_url: https://pypi.python.org/
-          pypi_index_url: https://pypi.python.org/simple
-
-      - name: Copy launcher.exe to release directory
-        run: cp launcher_release/dist/launcher.exe launcher_release/
+      - name: Build executable using pyinstaller
+        run: |
+          pyinstaller --onefile launcher.py
+          ls -R dist  # Add this line to list files in the dist directory
+          mv dist/launcher launcher_release/launcher.exe
 
       - name: Compile Java code
         run: |
