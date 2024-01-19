@@ -1,24 +1,34 @@
 # pyinstaller --onefile --noconsole launcher.py
 import os
+import platform
 import shutil
 import subprocess
+import sys
+import zipfile
 from subprocess import call
 from sys import argv, exit
 
+import requests
 from PyQt5.QtCore import QThread, pyqtSignal, QSize, Qt
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QSpacerItem, QSizePolicy, \
-    QProgressBar, QPushButton, QApplication, QMainWindow, QCheckBox
+    QProgressBar, QPushButton, QApplication, QMainWindow, QCheckBox, QHBoxLayout
 from minecraft_launcher_lib import forge
 from minecraft_launcher_lib.command import get_minecraft_command
 from minecraft_launcher_lib.forge import find_forge_version
 from minecraft_launcher_lib.utils import get_minecraft_directory
+from dotenv import load_dotenv
+
+# Load environment variables from the .env file
+load_dotenv()
 
 # TODO: check for specific (8) version of java to download, pass java path to launch command
 minecraft_directory = get_minecraft_directory().replace('minecraft', 'EngineeringClubLauncher')
 TITLE = "Engineering Club MC"
 VANILLA_VERSION_ID = '1.20'
 FORGE_VERSION_ID = '1.20-forge-46.0.14'
+GITHUB_REPO = "https://api.github.com/repos/dmoke/EC-MC-client/releases/latest"
+is_dev_environment = os.getenv('DEV_ENVIRONMENT', False)
 
 
 def clear_and_move_mods(local_mods_dir):
@@ -146,9 +156,55 @@ class LaunchThread(QThread):
         self.state_update_signal.emit(False)
 
 
+def download_to_tmp(assets):
+    if not assets or is_dev_environment:
+        print("No assets found for the release or in development environment.")
+        return
+
+    asset = assets[0]  # Assuming the first asset is a zip file
+    asset_url = asset.get("browser_download_url")
+    asset_name = asset.get("name")
+
+    if asset_url:
+        print(f"Downloading asset: {asset_name}")
+        response = requests.get(asset_url, stream=True)
+
+        tmp_dir = os.path.join(os.getcwd(), 'tmp')
+        os.makedirs(tmp_dir, exist_ok=True)
+
+        asset_path = os.path.join(tmp_dir, asset_name)
+        with open(asset_path, 'wb') as file:
+            shutil.copyfileobj(response.raw, file)
+
+        print(f"Asset downloaded to: {asset_path}")
+
+        # Extract the downloaded asset directly to the tmp directory
+        with zipfile.ZipFile(asset_path, 'r') as zip_ref:
+            zip_ref.extractall(tmp_dir)
+
+        # Delete the downloaded ZIP file
+        os.remove(asset_path)
+
+        return tmp_dir
+
+
+def elevator_launcher():
+    # Get the script's directory
+    client_directory = os.path.dirname(os.path.realpath(__file__))
+
+    # Run elevator.py using subprocess
+    elevator_script = os.path.join(client_directory, 'tmp', 'assets', 'elevator.py')
+    if sys.platform.startswith('darwin'):
+        subprocess.run(['python3', elevator_script])
+    else:
+        subprocess.run(['python', elevator_script])
+    sys.exit()
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.latest_version = None
         self.setWindowTitle(TITLE + " Launcher")
         self.resize(300, 283)
         self.centralwidget = QWidget(self)
@@ -177,9 +233,6 @@ class MainWindow(QMainWindow):
         self.start_button.setText('Play')
         self.start_button.clicked.connect(self.launch_game)
 
-        self.reinstall_forge_checkbox = QCheckBox("Force Reinstall Forge", self.centralwidget)
-        self.reinstall_forge_checkbox.setChecked(False)  # Set default value
-
         self.vertical_layout = QVBoxLayout(self.centralwidget)
         self.vertical_layout.setContentsMargins(15, 15, 15, 15)
         self.vertical_layout.addWidget(self.logo, 0, Qt.AlignmentFlag.AlignHCenter)
@@ -187,17 +240,34 @@ class MainWindow(QMainWindow):
         self.vertical_layout.addWidget(self.username)
         self.vertical_layout.addItem(self.progress_spacer)
 
-        self.vertical_layout.addWidget(self.reinstall_forge_checkbox)
-        self.vertical_layout.addWidget(
-            self.start_progress_label)
+        # Create a horizontal layout for the version label, repo link, and checkbox
+        version_checkbox_layout = QHBoxLayout()
+
+        self.launcher_version_label = QLabel()
+        self.fetch_launcher_version()
+        version_checkbox_layout.addWidget(self.launcher_version_label, 0, Qt.AlignmentFlag.AlignLeft)
+
+        self.repo_link_label = QLabel()
+        self.repo_link_label.setText('<a href="https://github.com/dmoke/EC-MC-client">GitHub Repo</a>')
+        self.repo_link_label.setOpenExternalLinks(True)
+        version_checkbox_layout.addWidget(self.repo_link_label, 1, Qt.AlignmentFlag.AlignRight)
+
+        self.reinstall_forge_checkbox = QCheckBox("Force Reinstall Forge")
+        self.reinstall_forge_checkbox.setChecked(False)  # Set default value
+        version_checkbox_layout.addWidget(self.reinstall_forge_checkbox, 2, Qt.AlignmentFlag.AlignRight)
+
+        # Add the combined layout to the main vertical layout
+        self.vertical_layout.addLayout(version_checkbox_layout)
+
+        self.vertical_layout.addWidget(self.start_progress_label)
         self.vertical_layout.addWidget(self.start_progress)
         self.vertical_layout.addWidget(self.start_button)
+
+        self.setCentralWidget(self.centralwidget)
 
         self.launch_thread = LaunchThread()
         self.launch_thread.state_update_signal.connect(self.state_update)
         self.launch_thread.progress_update_signal.connect(self.update_progress)
-
-        self.setCentralWidget(self.centralwidget)
 
         icon = QIcon("assets/icon.png")
         self.setWindowIcon(icon)
@@ -212,15 +282,44 @@ class MainWindow(QMainWindow):
         self.start_progress.setMaximum(max_progress)
         self.start_progress_label.setText(label)
 
-    def launch_game(self, ):
+    def fetch_launcher_version(self):
+        try:
+            response = requests.get(GITHUB_REPO)
+            release_info = response.json()
+            version_tag = release_info["tag_name"]
+            assets = release_info.get("assets", [])
+
+            self.latest_version = version_tag
+            self.launcher_version_label.setText(f"Launcher Version: {self.latest_version}")
+
+            return assets
+
+        except requests.RequestException as e:
+            print(f"Error fetching launcher version: {e}")
+            return []
+
+    def launch_game(self):
+        # Fetch version information only when the "Play" button is clicked
+        assets = self.fetch_launcher_version()
+
         forge_version_id = "1.20-forge-46.0.14"
 
-        self.start_progress_label.setText("Browsing Files...")
-        # Start the launch thread after Forge installation
-        self.launch_thread.launch_setup_signal.emit(forge_version_id, self.username.text(),
-                                                    self.reinstall_forge_checkbox.isChecked())
+        self.start_progress_label.setText("Checking for updates...")
 
-        self.launch_thread.start()
+        # Compare the current version with the latest version
+        current_version = self.launcher_version_label.text().split(":")[-1].strip()
+        current_version += 'xd'  # FIXME
+        if current_version != self.latest_version:
+            # Download and install assets if versions are different
+            temp_extracted_dir = download_to_tmp(assets)
+            elevator_launcher()
+
+        else:
+            # Start the launch thread after Forge installation
+            self.launch_thread.launch_setup_signal.emit(forge_version_id, self.username.text(),
+                                                        self.reinstall_forge_checkbox.isChecked())
+
+            self.launch_thread.start()
 
 
 if __name__ == '__main__':
