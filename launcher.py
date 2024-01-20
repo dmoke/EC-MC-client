@@ -169,7 +169,12 @@ class LaunchThread(QThread):
         # Run elevator.py in a new console window
         elevator_script = os.path.join(client_directory, 'tmp', 'assets', 'elevator.py')
 
-        subprocess.Popen(['python', elevator_script])
+        # Check if the platform is Mac
+        if platform.system() == 'Darwin':
+            subprocess.Popen(['python3', elevator_script])
+        else:
+            subprocess.Popen(['python', elevator_script])
+
         time.sleep(5)
         self.finished_signal.emit(True)
         sys.exit(0)
