@@ -19,6 +19,7 @@ jobs:
           cp -r assets mods config shaderpacks launcher_release/
           cp launcher.py launcher_release/
           cp launcher launcher_release/
+          cp launcher.jar launcher_release/
           cp requirements.txt launcher_release/
           cp servers.dat launcher_release/
           cp dist/launcher.exe launcher_release/
