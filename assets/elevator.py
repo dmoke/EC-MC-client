@@ -86,6 +86,7 @@ def relaunch_updated_launcher():
 
 
 if __name__ == '__main__':
+    time.sleep(1)
     # Get the current directory of elevator.py
     current_directory = tmp_assets_directory = os.path.dirname(os.path.realpath(__file__))
     # Find the 'client' directory
@@ -96,7 +97,7 @@ if __name__ == '__main__':
     delete_specific_entries(client_directory)
 
     # Add a delay before moving files
-    time.sleep(3)  # Adjust the duration as needed
+    time.sleep(1)  # Adjust the duration as needed
 
     move_files(tmp_directory, client_directory)
 
@@ -105,7 +106,7 @@ if __name__ == '__main__':
     shutil.rmtree(tmp_directory)
 
     # Add a delay before relaunching
-    time.sleep(3)  # Adjust the duration as needed
+    time.sleep(1)  # Adjust the duration as needed
 
     # Launch the launcher
     relaunch_updated_launcher()
