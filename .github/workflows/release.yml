@@ -36,8 +36,6 @@ jobs:
           route: POST /repos/${{ github.repository }}/releases
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
-          body: |
-            Current Version: ${{ steps.read_version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
 
