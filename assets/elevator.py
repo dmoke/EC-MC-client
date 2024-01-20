@@ -17,7 +17,7 @@ def retry_operation(func, *args, **kwargs):
             return True
         except PermissionError as e:
             print(f"PermissionError: {e}")
-            print("Retrying...")
+            print("Retrying, please wait, don't close this window...")
             time.sleep(RETRY_DELAY_SECONDS)
     return False
 
