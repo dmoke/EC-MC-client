@@ -277,7 +277,6 @@ class MainWindow(QMainWindow):
         self.username.setPlaceholderText('Username')
 
         self.current_launcher_version = fetch_current_version()
-        self.current_launcher_version += 'xd'  # FIXME
 
         self.progress_spacer = QSpacerItem(20, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
 
