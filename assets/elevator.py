@@ -101,6 +101,7 @@ def relaunch_updated_launcher():
 
 
 if __name__ == '__main__':
+    time.sleep(2)
     # Get the current directory of elevator.py
     current_directory = tmp_assets_directory = os.path.dirname(os.path.realpath(__file__))
     # Find the 'client' directory

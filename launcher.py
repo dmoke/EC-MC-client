@@ -170,6 +170,7 @@ class LaunchThread(QThread):
         else:
             subprocess.run(['python', elevator_script])
         self.finished_signal.emit(True)
+        time.sleep(1)
         sys.exit()
 
     def fetch_launcher_version(self):
@@ -211,10 +212,13 @@ class LaunchThread(QThread):
     def run(self):
         self.state_update_signal.emit(True)
         time.sleep(1)
+
+        self.progress_update_signal.emit(self.progress_max, self.progress_max, "Checking for updates...")
         assets = self.fetch_launcher_version()
 
         if self.currentLauncherVersion != self.latest_version and not is_dev_environment:
             # Download and install assets if versions are different
+            self.progress_update_signal.emit(self.progress_max, self.progress_max, "Installing Updates...")
             download_to_tmp(assets)
             self.elevator_launcher()
 
@@ -247,6 +251,7 @@ def launch_thread_finished(is_finished):
     if is_finished:
         print("Launch thread has finished.")
         QApplication.quit()
+        sys.exit()
 
 
 class MainWindow(QMainWindow):
@@ -336,6 +341,7 @@ class MainWindow(QMainWindow):
         forge_version_id = "1.20-forge-46.0.14"
 
         self.start_progress_label.setText("Checking for updates...")
+        self.start_progress.setValue(100)
 
         # Start the launch thread after Forge installation
         self.launch_thread.launch_setup_signal.emit(forge_version_id, self.username.text(),
