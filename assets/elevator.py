@@ -6,6 +6,21 @@ import subprocess
 import sys
 import time
 
+MAX_RETRIES = 5
+RETRY_DELAY_SECONDS = 2
+
+
+def retry_operation(func, *args, **kwargs):
+    for _ in range(MAX_RETRIES):
+        try:
+            func(*args, **kwargs)
+            return True
+        except PermissionError as e:
+            print(f"PermissionError: {e}")
+            print("Retrying...")
+            time.sleep(RETRY_DELAY_SECONDS)
+    return False
+
 
 def find_client_directory(current_dir):
     # Navigate up two levels to find the 'client' directory
@@ -15,6 +30,13 @@ def find_client_directory(current_dir):
 def find_tmp_directory(current_dir):
     # Navigate up two levels to find the 'client' directory
     return os.path.abspath(os.path.join(current_dir, '..'))
+
+
+def delete_file_or_directory(path):
+    if os.path.isfile(path):
+        os.remove(path)
+    elif os.path.isdir(path):
+        shutil.rmtree(path)
 
 
 def delete_specific_entries(directory):
@@ -38,14 +60,8 @@ def delete_specific_entries(directory):
 
             # Check if the file or directory exists before attempting to delete
             if os.path.exists(entry_path):
-                try:
-                    if os.path.isfile(entry_path):
-                        os.remove(entry_path)
-                    elif os.path.isdir(entry_path):
-                        shutil.rmtree(entry_path)
-                    print(f"Deleted: {entry_path}")
-                except PermissionError as e:
-                    print(f"PermissionError: {e} - Could not delete {entry_path}")
+                retry_operation(delete_file_or_directory, entry_path)
+                print(f"Deleted: {entry_path}")
             else:
                 print(f"Not found: {entry_path}")
 
@@ -61,10 +77,9 @@ def move_files(src_directory, dest_directory):
         # Check if the file already exists in the destination directory
         if os.path.exists(dest_path):
             # If it does, remove the existing file before moving
-            os.remove(dest_path)
+            retry_operation(os.remove, dest_path)
 
-        # Move the file from source to destination
-        shutil.move(src_path, dest_path)
+        retry_operation(shutil.move, src_path, dest_path)
 
 
 def relaunch_updated_launcher():
@@ -86,7 +101,6 @@ def relaunch_updated_launcher():
 
 
 if __name__ == '__main__':
-    time.sleep(1)
     # Get the current directory of elevator.py
     current_directory = tmp_assets_directory = os.path.dirname(os.path.realpath(__file__))
     # Find the 'client' directory
@@ -96,17 +110,11 @@ if __name__ == '__main__':
     # Delete files in client except .sl_password and tmp/
     delete_specific_entries(client_directory)
 
-    # Add a delay before moving files
-    time.sleep(1)  # Adjust the duration as needed
-
     move_files(tmp_directory, client_directory)
 
     # Delete tmp directory
     tmp_directory = os.path.join(client_directory, 'tmp')
-    shutil.rmtree(tmp_directory)
-
-    # Add a delay before relaunching
-    time.sleep(1)  # Adjust the duration as needed
+    retry_operation(shutil.rmtree, tmp_directory)
 
     # Launch the launcher
     relaunch_updated_launcher()
