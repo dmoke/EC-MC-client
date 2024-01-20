@@ -309,7 +309,7 @@ class MainWindow(QMainWindow):
         # Compare the current version with the latest version
         current_version = self.launcher_version_label.text().split(":")[-1].strip()
         current_version += 'xd'  # FIXME
-        if current_version != self.latest_version:
+        if current_version != self.latest_version and not is_dev_environment:
             # Download and install assets if versions are different
             temp_extracted_dir = download_to_tmp(assets)
             elevator_launcher()

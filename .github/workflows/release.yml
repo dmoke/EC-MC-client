@@ -13,45 +13,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Package Application
-        uses: JackMcKew/pyinstaller-action-windows
-        with:
-          path: .
-
-      - name: Prepare release directory
-        run: |
-          mkdir launcher_release
-          cp -r assets mods config shaderpacks launcher_release/
-          cp launcher.py launcher_release/
-          cp requirements.txt launcher_release/
-          cp servers.dat launcher_release/
-
-      - name: Move launcher
-        run: |
-          mv dist/launcher launcher_release/launcher.exe
-
       - name: Set up Java 17
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: '17'
 
-      - name: Display contents of dist directory
-        run: |
-          ls -R dist
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
 
-      - name: Move launcher to release directory
+      - name: Prepare release directory
         run: |
-          mv dist/launcher launcher_release/launcher.exe
+          mkdir launcher_release
+          cp -r assets mods config shaderpacks launcher_release/
+          cp launcher.py launcher_release/
+          cp launcher launcher_release/
+          cp requirements.txt launcher_release/
+          cp servers.dat launcher_release/
+          cp dist/launcher.exe launcher_release/launcher/
+          cp launcher.py launcher_release/launcher/
+          cp requirements.txt launcher_release/launcher/
+          cp servers.dat launcher_release/launcher/
 
       - name: Compile Java code
         run: |
           javac RunPythonScript.java
-
-      - name: Create JAR file
-        run: |
-          jar cfm RunPythonScript.jar MANIFEST.MF RunPythonScript.class
-          mv RunPythonScript.jar launcher_release/launcher.jar
 
       - name: Create Release
         id: create_release

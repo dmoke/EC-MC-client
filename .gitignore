@@ -4,8 +4,6 @@ venv
 .idea
 /logs
 .sl_password
-dist
 build
-launcher.exe
 _internal
 simplebackups
