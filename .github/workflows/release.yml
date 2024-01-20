@@ -41,7 +41,9 @@ jobs:
           zip -r ../launcher_release.zip *
 
       - name: Write Release Version to assets/version.json
-        run: echo '{"version": "${{ github.ref_name }}"}' > launcher_release/assets/version.json
+        run: |
+          echo '{"version": "${{ github.ref_name }}" }' > launcher_release/assets/version.json
+      
 
       - name: Upload Release Asset
         id: upload_asset
