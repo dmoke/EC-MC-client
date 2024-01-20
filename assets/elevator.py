@@ -105,7 +105,7 @@ if __name__ == '__main__':
     # Get the current directory of elevator.py
     current_directory = tmp_assets_directory = os.path.dirname(os.path.realpath(__file__))
     # Find the 'client' directory
-    client_directory = find_client_directory(current_directory)
+    client_directory = os.path.abspath(sys.argv[1])
     tmp_directory = find_tmp_directory(current_directory)
 
     # Delete files in client except .sl_password and tmp/

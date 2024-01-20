@@ -1,5 +1,6 @@
 # pyinstaller --onefile --noconsole launcher.py
 import json
+import multiprocessing
 import os
 import platform
 import shutil
@@ -11,7 +12,7 @@ from subprocess import call
 from sys import argv, exit
 
 import requests
-from PyQt5.QtCore import QThread, pyqtSignal, QSize, Qt
+from PyQt5.QtCore import QThread, pyqtSignal, QSize, Qt, QCoreApplication, QMetaObject
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QSpacerItem, QSizePolicy, \
     QProgressBar, QPushButton, QApplication, QMainWindow, QCheckBox, QHBoxLayout
@@ -160,20 +161,25 @@ class LaunchThread(QThread):
                                               'setProgress': self.update_progress, 'setMax': self.update_progress_max})
 
     def elevator_launcher(self):
-        # Get the script's directory
-        client_directory = os.path.dirname(os.path.realpath(__file__))
+        # Get the absolute path of the currently executing script
+        current_script = os.path.abspath(sys.argv[0])
 
-        # Run elevator.py in a new console window
+        # Get the script's directory
+        client_directory = os.path.dirname(current_script)
+
         elevator_script = os.path.join(client_directory, 'tmp', 'assets', 'elevator.py')
 
         if sys.platform.startswith('darwin'):
-            subprocess.Popen(['python3', elevator_script], creationflags=subprocess.CREATE_NEW_CONSOLE)
+            subprocess.run(['python3', elevator_script])
         else:
-            subprocess.Popen(['python', elevator_script], creationflags=subprocess.CREATE_NEW_CONSOLE)
+            process = multiprocessing.Process(target=self.independent_process, args=(elevator_script, client_directory))
+            process.start()
 
-        # Emit the finished signal (if needed)
         self.finished_signal.emit(True)
-        # No need to sleep or exit here
+        sys.exit(0)
+
+    def independent_process(self, script, cl_dir):
+        subprocess.run(['python', script, cl_dir])
 
     def fetch_launcher_version(self):
         try:
@@ -252,8 +258,7 @@ class LaunchThread(QThread):
 def launch_thread_finished(is_finished):
     if is_finished:
         print("Launch thread has finished.")
-        QApplication.quit()
-        sys.exit()
+        sys.exit(0)
 
 
 class MainWindow(QMainWindow):
