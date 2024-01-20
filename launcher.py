@@ -172,14 +172,14 @@ class LaunchThread(QThread):
         if sys.platform.startswith('darwin'):
             subprocess.run(['python3', elevator_script])
         else:
-            process = multiprocessing.Process(target=self.independent_process, args=(elevator_script, client_directory))
+            process = multiprocessing.Process(target=self.independent_process, args=(elevator_script))
             process.start()
 
         self.finished_signal.emit(True)
         sys.exit(0)
 
-    def independent_process(self, script, cl_dir):
-        subprocess.run(['python', script, cl_dir])
+    def independent_process(self, script):
+        os.system(f'python {" ".join(sys.argv)} {script}')
 
     def fetch_launcher_version(self):
         try:
