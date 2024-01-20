@@ -1,9 +1,11 @@
 # pyinstaller --onefile --noconsole launcher.py
+import json
 import os
 import platform
 import shutil
 import subprocess
 import sys
+import time
 import zipfile
 from subprocess import call
 from sys import argv, exit
@@ -61,6 +63,16 @@ def move_extra_shaders():
         shutil.copy2(shader_pack_path, client_shader_pack_path)
 
 
+def fetch_current_version():
+    # Fetch current version from assets/version.json
+    try:
+        with open('assets/version.json', 'r') as file:
+            version_data = json.load(file)
+            return version_data.get('version', '')
+    except FileNotFoundError:
+        return 'None'
+
+
 def create_minecraft_directory():
     # Create the Minecraft directory if it doesn't exist
     if not os.path.exists(minecraft_directory):
@@ -83,77 +95,6 @@ def is_forge_installed():
     forge_version_folder = os.path.join(versions_directory, FORGE_VERSION_ID)
 
     return os.path.exists(vanilla_version_folder) and os.path.exists(forge_version_folder)
-
-
-class LaunchThread(QThread):
-    launch_setup_signal = pyqtSignal(str, str, bool)
-    progress_update_signal = pyqtSignal(int, int, str)
-    state_update_signal = pyqtSignal(bool)
-
-    version_id = ''
-    username = ''
-    isReinstallingForge = False
-
-    progress = 0
-    progress_max = 0
-    progress_label = ''
-
-    def __init__(self):
-        super().__init__()
-        self.launch_setup_signal.connect(self.launch_setup)
-
-    def install_forge(self, version_id):
-        forge_version = find_forge_version(version_id)
-        forge.install_forge_version(forge_version, minecraft_directory,
-                                    callback={'setStatus': self.update_progress_label,
-                                              'setProgress': self.update_progress, 'setMax': self.update_progress_max})
-
-    def launch_setup(self, version_id, username, isReinstallingForge):
-        self.version_id = version_id
-        self.username = username
-        self.isReinstallingForge = isReinstallingForge
-
-    def update_progress_label(self, value):
-        self.progress_label = value
-        self.progress_update_signal.emit(self.progress, self.progress_max, self.progress_label)
-
-    def update_progress(self, value):
-        self.progress = value
-        self.progress_update_signal.emit(self.progress, self.progress_max, self.progress_label)
-
-    def installation_complete(self):
-        self.progress_update_signal.emit(self.progress_max, self.progress_max, "Game is running...")
-
-    def update_progress_max(self, value):
-        self.progress_max = value
-        self.progress_update_signal.emit(self.progress, self.progress_max, self.progress_label)
-
-    def run(self):
-        self.state_update_signal.emit(True)
-
-        create_minecraft_directory()
-        if self.isReinstallingForge or not is_forge_installed():
-            self.install_forge(VANILLA_VERSION_ID)
-
-        # install_minecraft_version(versionid=self.version_id, minecraft_directory=minecraft_directory,
-        #                           callback={'setStatus': self.update_progress_label,
-        #                                     'setProgress': self.update_progress, 'setMax': self.update_progress_max})
-
-        clear_and_move_mods('mods')
-        move_extra_shaders()
-        copy_servers()
-        if self.username == '':
-            self.username = 'testUser'
-
-        options = {
-            'username': self.username,
-            'uuid': '',
-            'token': ''
-        }
-        self.installation_complete()
-        call(get_minecraft_command(version=self.version_id, minecraft_directory=minecraft_directory, options=options))
-
-        self.state_update_signal.emit(False)
 
 
 def download_to_tmp(assets):
@@ -188,23 +129,129 @@ def download_to_tmp(assets):
         return tmp_dir
 
 
-def elevator_launcher():
-    # Get the script's directory
-    client_directory = os.path.dirname(os.path.realpath(__file__))
+class LaunchThread(QThread):
+    launch_setup_signal = pyqtSignal(str, str, bool, str)
+    progress_update_signal = pyqtSignal(int, int, str)
 
-    # Run elevator.py using subprocess
-    elevator_script = os.path.join(client_directory, 'tmp', 'assets', 'elevator.py')
-    if sys.platform.startswith('darwin'):
-        subprocess.run(['python3', elevator_script])
-    else:
-        subprocess.run(['python', elevator_script])
-    sys.exit()
+    fetch_progress_signal = pyqtSignal(int, int, str)
+    download_progress_signal = pyqtSignal(int, int, str)
+    elevator_progress_signal = pyqtSignal(int, int, str)
+    state_update_signal = pyqtSignal(bool)
+    finished_signal = pyqtSignal(bool)
+
+    version_id = ''
+    username = ''
+    isReinstallingForge = False
+
+    progress = 0
+    progress_max = 0
+    progress_label = ''
+
+    def __init__(self):
+        super().__init__()
+        self.currentLauncherVersion = None
+        self.latest_version = None
+        self.launch_setup_signal.connect(self.launch_setup)
+
+    def install_forge(self, version_id):
+        forge_version = find_forge_version(version_id)
+        forge.install_forge_version(forge_version, minecraft_directory,
+                                    callback={'setStatus': self.update_progress_label,
+                                              'setProgress': self.update_progress, 'setMax': self.update_progress_max})
+
+    def elevator_launcher(self):
+        # Get the script's directory
+        client_directory = os.path.dirname(os.path.realpath(__file__))
+
+        # Run elevator.py using subprocess
+        elevator_script = os.path.join(client_directory, 'tmp', 'assets', 'elevator.py')
+        if sys.platform.startswith('darwin'):
+            subprocess.run(['python3', elevator_script])
+        else:
+            subprocess.run(['python', elevator_script])
+        self.finished_signal.emit(True)
+        sys.exit()
+
+    def fetch_launcher_version(self):
+        try:
+            response = requests.get(GITHUB_REPO)
+            release_info = response.json()
+            version_tag = release_info["tag_name"]
+            assets = release_info.get("assets", [])
+
+            self.latest_version = version_tag
+
+            return assets
+
+        except requests.RequestException as e:
+            print(f"Error fetching launcher version: {e}")
+            return []
+
+    def launch_setup(self, version_id, username, isReinstallingForge, currentLauncherVersion):
+        self.version_id = version_id
+        self.username = username
+        self.isReinstallingForge = isReinstallingForge
+        self.currentLauncherVersion = currentLauncherVersion
+
+    def update_progress_label(self, value):
+        self.progress_label = value
+        self.progress_update_signal.emit(self.progress, self.progress_max, self.progress_label)
+
+    def update_progress(self, value):
+        self.progress = value
+        self.progress_update_signal.emit(self.progress, self.progress_max, self.progress_label)
+
+    def installation_complete(self):
+        self.progress_update_signal.emit(self.progress_max, self.progress_max, "Game is running...")
+
+    def update_progress_max(self, value):
+        self.progress_max = value
+        self.progress_update_signal.emit(self.progress, self.progress_max, self.progress_label)
+
+    def run(self):
+        self.state_update_signal.emit(True)
+        time.sleep(1)
+        assets = self.fetch_launcher_version()
+
+        if self.currentLauncherVersion != self.latest_version and not is_dev_environment:
+            # Download and install assets if versions are different
+            download_to_tmp(assets)
+            self.elevator_launcher()
+
+        create_minecraft_directory()
+        if self.isReinstallingForge or not is_forge_installed():
+            self.install_forge(VANILLA_VERSION_ID)
+
+        # install_minecraft_version(versionid=self.version_id, minecraft_directory=minecraft_directory,
+        #                           callback={'setStatus': self.update_progress_label,
+        #                                     'setProgress': self.update_progress, 'setMax': self.update_progress_max})
+
+        clear_and_move_mods('mods')
+        move_extra_shaders()
+        copy_servers()
+        if self.username == '':
+            self.username = 'testUser'
+
+        options = {
+            'username': self.username,
+            'uuid': '',
+            'token': ''
+        }
+        self.installation_complete()
+        call(get_minecraft_command(version=self.version_id, minecraft_directory=minecraft_directory, options=options))
+
+        self.state_update_signal.emit(False)
+
+
+def launch_thread_finished(is_finished):
+    if is_finished:
+        print("Launch thread has finished.")
+        QApplication.quit()
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.latest_version = None
         self.setWindowTitle(TITLE + " Launcher")
         self.resize(300, 283)
         self.centralwidget = QWidget(self)
@@ -218,6 +265,9 @@ class MainWindow(QMainWindow):
 
         self.username = QLineEdit(self.centralwidget)
         self.username.setPlaceholderText('Username')
+
+        self.current_launcher_version = fetch_current_version()
+        self.current_launcher_version += 'xd'  # FIXME
 
         self.progress_spacer = QSpacerItem(20, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
 
@@ -244,7 +294,7 @@ class MainWindow(QMainWindow):
         version_checkbox_layout = QHBoxLayout()
 
         self.launcher_version_label = QLabel()
-        self.fetch_launcher_version()
+        self.launcher_version_label.setText(f"Launcher Version: {fetch_current_version()}")
         version_checkbox_layout.addWidget(self.launcher_version_label, 0, Qt.AlignmentFlag.AlignLeft)
 
         self.repo_link_label = QLabel()
@@ -268,7 +318,7 @@ class MainWindow(QMainWindow):
         self.launch_thread = LaunchThread()
         self.launch_thread.state_update_signal.connect(self.state_update)
         self.launch_thread.progress_update_signal.connect(self.update_progress)
-
+        self.launch_thread.finished_signal.connect(launch_thread_finished)
         icon = QIcon("assets/icon.png")
         self.setWindowIcon(icon)
 
@@ -282,44 +332,17 @@ class MainWindow(QMainWindow):
         self.start_progress.setMaximum(max_progress)
         self.start_progress_label.setText(label)
 
-    def fetch_launcher_version(self):
-        try:
-            response = requests.get(GITHUB_REPO)
-            release_info = response.json()
-            version_tag = release_info["tag_name"]
-            assets = release_info.get("assets", [])
-
-            self.latest_version = version_tag
-            self.launcher_version_label.setText(f"Launcher Version: {self.latest_version}")
-
-            return assets
-
-        except requests.RequestException as e:
-            print(f"Error fetching launcher version: {e}")
-            return []
-
     def launch_game(self):
-        # Fetch version information only when the "Play" button is clicked
-        assets = self.fetch_launcher_version()
-
         forge_version_id = "1.20-forge-46.0.14"
 
         self.start_progress_label.setText("Checking for updates...")
 
-        # Compare the current version with the latest version
-        current_version = self.launcher_version_label.text().split(":")[-1].strip()
-        current_version += 'xd'  # FIXME
-        if current_version != self.latest_version and not is_dev_environment:
-            # Download and install assets if versions are different
-            temp_extracted_dir = download_to_tmp(assets)
-            elevator_launcher()
+        # Start the launch thread after Forge installation
+        self.launch_thread.launch_setup_signal.emit(forge_version_id, self.username.text(),
+                                                    self.reinstall_forge_checkbox.isChecked(),
+                                                    self.current_launcher_version)
 
-        else:
-            # Start the launch thread after Forge installation
-            self.launch_thread.launch_setup_signal.emit(forge_version_id, self.username.text(),
-                                                        self.reinstall_forge_checkbox.isChecked())
-
-            self.launch_thread.start()
+        self.launch_thread.start()
 
 
 if __name__ == '__main__':

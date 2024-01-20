@@ -6,7 +6,7 @@ import subprocess
 import sys
 import time
 
-MAX_RETRIES = 5
+MAX_RETRIES = 30
 RETRY_DELAY_SECONDS = 2
 
 

@@ -25,6 +25,10 @@ jobs:
           cp dist/launcher.exe launcher_release/
           cp servers.dat launcher_release/
 
+      - name: Read current version from assets/version.json
+        id: read_version
+        run: echo "::set-output name=version::$(cat assets/version.json)"
+
       - name: Create Release
         id: create_release
         uses: octokit/request-action@v2.x
@@ -32,6 +36,8 @@ jobs:
           route: POST /repos/${{ github.repository }}/releases
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
+          body: |
+            Current Version: ${{ steps.read_version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
 
