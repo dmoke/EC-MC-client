@@ -163,15 +163,17 @@ class LaunchThread(QThread):
         # Get the script's directory
         client_directory = os.path.dirname(os.path.realpath(__file__))
 
-        # Run elevator.py using subprocess
+        # Run elevator.py in a new console window
         elevator_script = os.path.join(client_directory, 'tmp', 'assets', 'elevator.py')
+
         if sys.platform.startswith('darwin'):
-            subprocess.run(['python3', elevator_script])
+            subprocess.Popen(['python3', elevator_script], creationflags=subprocess.CREATE_NEW_CONSOLE)
         else:
-            subprocess.run(['python', elevator_script])
+            subprocess.Popen(['python', elevator_script], creationflags=subprocess.CREATE_NEW_CONSOLE)
+
+        # Emit the finished signal (if needed)
         self.finished_signal.emit(True)
-        time.sleep(1)
-        sys.exit()
+        # No need to sleep or exit here
 
     def fetch_launcher_version(self):
         try:
