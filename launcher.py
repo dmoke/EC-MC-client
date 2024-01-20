@@ -175,7 +175,7 @@ class LaunchThread(QThread):
         else:
             subprocess.Popen(['python', elevator_script])
 
-        time.sleep(5)
+        time.sleep(3)
         self.finished_signal.emit(True)
         sys.exit(0)
 
@@ -256,7 +256,6 @@ class LaunchThread(QThread):
 def launch_thread_finished(is_finished):
     if is_finished:
         print("Launch thread has finished.")
-        QApplication.quit()
         sys.exit()
 
 
