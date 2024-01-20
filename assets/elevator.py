@@ -24,24 +24,33 @@ def delete_specific_entries(directory):
         print(f"Error: elevator.py not found in {directory}")
         return
 
-    # Change the working directory to the specified directory
-    os.chdir(directory)
+    try:
+        # Change the working directory to the specified directory
+        os.chdir(directory)
 
-    # Entries to be deleted
-    entries_to_delete = ['assets', 'config', 'logs', 'mods', 'shaderpacks', 'venv', 'launcher.exe', 'launcher.jar',
-                         'launcher.py', 'requirements.txt', 'servers.dat']
+        # Entries to be deleted
+        entries_to_delete = ['assets', 'config', 'logs', 'mods', 'shaderpacks', 'venv', 'launcher.exe', 'launcher.jar',
+                             'launcher.py', 'requirements.txt', 'servers.dat']
 
-    # Iterate over files and subdirectories in the regular directory
-    for entry in entries_to_delete:
-        entry_path = os.path.join(directory, entry)
+        # Iterate over files and subdirectories in the regular directory
+        for entry in entries_to_delete:
+            entry_path = os.path.join(directory, entry)
 
-        try:
-            if os.path.isfile(entry_path):
-                os.remove(entry_path)
-            elif os.path.isdir(entry_path):
-                shutil.rmtree(entry_path)
-        except PermissionError as e:
-            print(f"PermissionError: {e} - Could not delete {entry_path}")
+            # Check if the file or directory exists before attempting to delete
+            if os.path.exists(entry_path):
+                try:
+                    if os.path.isfile(entry_path):
+                        os.remove(entry_path)
+                    elif os.path.isdir(entry_path):
+                        shutil.rmtree(entry_path)
+                    print(f"Deleted: {entry_path}")
+                except PermissionError as e:
+                    print(f"PermissionError: {e} - Could not delete {entry_path}")
+            else:
+                print(f"Not found: {entry_path}")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 
 def move_files(src_directory, dest_directory):
