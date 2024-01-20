@@ -173,9 +173,8 @@ class LaunchThread(QThread):
         if platform.system() == 'Darwin':
             subprocess.Popen(['python3', elevator_script])
         else:
-            subprocess.Popen(['python', elevator_script])
+            subprocess.Popen(['python', elevator_script], creationflags=subprocess.DETACHED_PROCESS)
 
-        time.sleep(3)
         self.finished_signal.emit(True)
         sys.exit(0)
 
