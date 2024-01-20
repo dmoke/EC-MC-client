@@ -1,6 +1,5 @@
 # pyinstaller --onefile --noconsole launcher.py
 import json
-import multiprocessing
 import os
 import platform
 import shutil
@@ -12,7 +11,7 @@ from subprocess import call
 from sys import argv, exit
 
 import requests
-from PyQt5.QtCore import QThread, pyqtSignal, QSize, Qt, QCoreApplication, QMetaObject
+from PyQt5.QtCore import QThread, pyqtSignal, QSize, Qt
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QSpacerItem, QSizePolicy, \
     QProgressBar, QPushButton, QApplication, QMainWindow, QCheckBox, QHBoxLayout
@@ -167,19 +166,13 @@ class LaunchThread(QThread):
         # Get the script's directory
         client_directory = os.path.dirname(current_script)
 
+        # Run elevator.py in a new console window
         elevator_script = os.path.join(client_directory, 'tmp', 'assets', 'elevator.py')
 
-        if sys.platform.startswith('darwin'):
-            subprocess.run(['python3', elevator_script])
-        else:
-            process = multiprocessing.Process(target=self.independent_process, args=(elevator_script))
-            process.start()
-
+        subprocess.Popen(['python', elevator_script])
+        time.sleep(5)
         self.finished_signal.emit(True)
         sys.exit(0)
-
-    def independent_process(self, script):
-        os.system(f'python {" ".join(sys.argv)} {script}')
 
     def fetch_launcher_version(self):
         try:
@@ -258,7 +251,8 @@ class LaunchThread(QThread):
 def launch_thread_finished(is_finished):
     if is_finished:
         print("Launch thread has finished.")
-        sys.exit(0)
+        QApplication.quit()
+        sys.exit()
 
 
 class MainWindow(QMainWindow):
