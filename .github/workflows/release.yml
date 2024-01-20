@@ -39,10 +39,7 @@ jobs:
       - name: Run PyInstaller
         run: |
           python -m PyInstaller launcher.spec
-          pwd
-          ls -R
-          ls -R dist
-          mv dist/launcher.exe launcher_release/launcher.exe
+          mv dist/launcher launcher_release/launcher.exe
 
       - name: Display contents of dist directory
         run: |
