@@ -17,6 +17,7 @@ jobs:
         run: |
           mkdir launcher_release
           cp -r assets mods config shaderpacks launcher_release/
+          echo '{"version": "${{ github.ref_name }}" }' > launcher_release/assets/version.json
           cp launcher.py launcher_release/
           cp launcher launcher_release/
           cp launcher.jar launcher_release/
@@ -39,11 +40,6 @@ jobs:
         run: |
           cd launcher_release
           zip -r ../launcher_release.zip *
-
-      - name: Write Release Version to assets/version.json
-        run: |
-          echo '{"version": "${{ github.ref_name }}" }' > launcher_release/assets/version.json
-        shell: bash
 
       - name: Upload Release Asset
         id: upload_asset
