@@ -59,6 +59,28 @@ def move_extra_shaders():
         shutil.copy2(shader_pack_path, client_shader_pack_path)
 
 
+def change_tutorial_step():
+    # Path to the options.txt file
+    options_file_path = os.path.join(minecraft_directory, 'options.txt')
+
+    try:
+        # Read the content of options.txt
+        with open(options_file_path, 'r') as file:
+            lines = file.readlines()
+
+        # Find and replace the line starting with 'tutorialStep'
+        modified_lines = [line if not line.startswith('tutorialStep') else 'tutorialStep:none\n' for line in lines]
+
+        # Write the modified content back to options.txt
+        with open(options_file_path, 'w') as file:
+            file.writelines(modified_lines)
+
+        print("Successfully changed the line starting with tutorialStep to tutorialStep:none in options.txt.")
+
+    except FileNotFoundError:
+        print(f"Error: options.txt not found in {minecraft_directory}.")
+
+
 def fetch_current_version():
     # Fetch current version from assets/version.json
     try:
@@ -235,6 +257,7 @@ class LaunchThread(QThread):
 
         clear_and_move_mods('mods')
         move_extra_shaders()
+        change_tutorial_step()
         copy_servers()
         if self.username == '':
             self.username = 'testUser'
