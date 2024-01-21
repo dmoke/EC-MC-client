@@ -171,6 +171,7 @@ class LaunchThread(QThread):
         else:
             subprocess.Popen(['python', elevator_script], creationflags=subprocess.DETACHED_PROCESS)
 
+        QApplication.instance().quit()
         self.finished_signal.emit(True)
         sys.exit(0)
 
