@@ -19,10 +19,6 @@ from minecraft_launcher_lib import forge
 from minecraft_launcher_lib.command import get_minecraft_command
 from minecraft_launcher_lib.forge import find_forge_version
 from minecraft_launcher_lib.utils import get_minecraft_directory
-from dotenv import load_dotenv
-
-# Load environment variables from the .env file
-load_dotenv()
 
 # TODO: check for specific (8) version of java to download, pass java path to launch command
 minecraft_directory = get_minecraft_directory().replace('minecraft', 'EngineeringClubLauncher')
