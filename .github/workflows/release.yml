@@ -42,7 +42,7 @@ jobs:
 
       - name: Write Release Version to assets/version.json
         run: |
-          echo '{"version": "${{ github.ref_name }}" }' > launcher_release/assets/version.json
+          echo '{"version": "${{ github.event.ref }}" }' > launcher_release/assets/version.json
         shell: bash
 
       - name: Upload Release Asset
