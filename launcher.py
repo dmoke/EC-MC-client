@@ -177,21 +177,22 @@ class LaunchThread(QThread):
                                     callback={'setStatus': self.update_progress_label,
                                               'setProgress': self.update_progress, 'setMax': self.update_progress_max})
 
-    def elevator_launcher(self):
+    def elevator_launcher(self, arg_username):
         # Get the absolute path of the currently executing script
         current_script = os.path.abspath(sys.argv[0])
 
         # Get the script's directory
         client_directory = os.path.dirname(current_script)
 
-        # Run elevator.py in a new console window
+        # Run elevator.py in a new console window with the username as an argument
         elevator_script = os.path.join(client_directory, 'tmp', 'assets', 'elevator.py')
 
         # Check if the platform is Mac
         if platform.system() == 'Darwin':
-            subprocess.Popen(['python3', elevator_script])
+            subprocess.Popen(['python3', elevator_script, '--username', arg_username])
         else:
-            subprocess.Popen(['python', elevator_script], creationflags=subprocess.DETACHED_PROCESS)
+            subprocess.Popen(['python', elevator_script, '--username', arg_username],
+                             creationflags=subprocess.DETACHED_PROCESS)
 
         QApplication.instance().quit()
         self.finished_signal.emit(True)
@@ -245,7 +246,7 @@ class LaunchThread(QThread):
             # Download and install assets if versions are different
             self.progress_update_signal.emit(self.progress_max, self.progress_max, "Installing Updates...")
             download_to_tmp(assets)
-            self.elevator_launcher()
+            self.elevator_launcher(self.username)
 
         create_minecraft_directory()
         if self.isReinstallingForge or not is_forge_installed():
@@ -280,7 +281,7 @@ def launch_thread_finished(is_finished):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, arg_username):
         super().__init__()
         self.setWindowTitle(TITLE + " Launcher")
         self.resize(300, 283)
@@ -294,7 +295,10 @@ class MainWindow(QMainWindow):
         self.titlespacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.username = QLineEdit(self.centralwidget)
-        self.username.setPlaceholderText('Username')
+        if arg_username:
+            self.username.setText(arg_username)
+        else:
+            self.username.setPlaceholderText('Username')
 
         self.current_launcher_version = fetch_current_version()
 
@@ -376,10 +380,14 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == '__main__':
+    username = ''
+    if len(sys.argv) > 2 and sys.argv[1] == '--username':
+        # If a username is provided as a command-line argument, start the LaunchThread
+        username = sys.argv[2]
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
 
     app = QApplication(argv)
-    window = MainWindow()
+    window = MainWindow(username)
     window.resize(640, 480)
     window.show()
 

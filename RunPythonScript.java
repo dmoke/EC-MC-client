@@ -4,6 +4,13 @@ import java.io.InputStream;
 public class RunPythonScript {
     public static void main(String[] args) {
         try {
+            String usernameArg = "";  // Initialize the username argument
+
+            // Check if there is an argument passed to the Java program
+            if (args.length > 0) {
+                usernameArg = args[0];  // Set the username argument
+            }
+
             // Step 1: Create and activate the virtual environment
             ProcessBuilder pbCreate;
             if (isWindows()) {
@@ -42,9 +49,9 @@ public class RunPythonScript {
             // Step 4: Run the launcher.py script within the virtual environment
             ProcessBuilder pbRun;
             if (isWindows()) {
-                pbRun = createProcessBuilder("venv\\Scripts\\python", "launcher.py");
+                pbRun = createProcessBuilder("venv\\Scripts\\python", "launcher.py", "--username", usernameArg);
             } else {
-                pbRun = createProcessBuilder("venv/bin/python3", "launcher.py");
+                pbRun = createProcessBuilder("venv/bin/python3", "launcher.py", "--username", usernameArg);
             }
             executeCommand(pbRun, "Run launcher.py");
 

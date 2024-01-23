@@ -82,16 +82,16 @@ def move_files(src_directory, dest_directory):
         retry_operation(shutil.move, src_path, dest_path)
 
 
-def relaunch_updated_launcher():
-    # Relaunch the updated launcher executable or JAR file
+def relaunch_updated_launcher(arg_username):
+    # Relaunch the updated launcher executable or JAR file with the provided username
     system = platform.system().lower()
 
     if system == 'windows':
         launcher_exe_path = os.path.join(os.getcwd(), 'launcher.exe')
-        subprocess.Popen([launcher_exe_path])
+        subprocess.Popen([launcher_exe_path, '--username', arg_username])
     elif system == 'darwin':
         launcher_jar_path = os.path.join(os.getcwd(), 'launcher.jar')
-        subprocess.Popen(['java', '-jar', launcher_jar_path])
+        subprocess.Popen(['java', '-jar', launcher_jar_path, '--username', arg_username])
     else:
         print("Unsupported platform.")
         sys.exit()
@@ -117,8 +117,15 @@ if __name__ == '__main__':
     tmp_directory = os.path.join(client_directory, 'tmp')
     retry_operation(shutil.rmtree, tmp_directory)
 
-    # Launch the launcher
-    relaunch_updated_launcher()
+    # Get the username from command line arguments
+    username = None
+    if '--username' in sys.argv:
+        username_index = sys.argv.index('--username')
+        if username_index + 1 < len(sys.argv):
+            username = sys.argv[username_index + 1]
+
+    # Launch the launcher with the provided username
+    relaunch_updated_launcher(username)
 
     # Exit the current instance
     sys.exit()
