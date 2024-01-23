@@ -198,7 +198,6 @@ class LaunchThread(QThread):
         self.finished_signal.emit(True)
         sys.exit(0)
 
-    # TODO: pass username to elevator
     def fetch_launcher_version(self):
         try:
             response = requests.get(GITHUB_REPO)
