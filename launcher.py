@@ -21,6 +21,7 @@ from minecraft_launcher_lib.forge import find_forge_version
 from minecraft_launcher_lib.utils import get_minecraft_directory
 
 # TODO: check for specific (8) version of java to download, pass java path to launch command
+# TODO: fix --username option on mac
 minecraft_directory = get_minecraft_directory().replace('minecraft', 'EngineeringClubLauncher')
 TITLE = "Engineering Club MC"
 VANILLA_VERSION_ID = '1.20'
