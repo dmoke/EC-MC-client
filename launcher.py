@@ -47,6 +47,23 @@ def clear_and_move_mods(local_mods_dir):
                 shutil.copy(mod_path, mods_directory)
 
 
+def replace_waystones_config_file():
+    # Specify the paths for the source and destination files
+    source_file_path = os.path.join(os.getcwd(), 'assets', 'waystones-common.toml')
+    destination_file_path = os.path.join(minecraft_directory, 'config', 'waystones-common.toml')
+
+    try:
+        # Check if the source file exists
+        if os.path.exists(source_file_path):
+            # Replace the destination file with the source file
+            shutil.copy2(source_file_path, destination_file_path)
+            print(f"Successfully replaced {destination_file_path} with {source_file_path}")
+        else:
+            print(f"Error: Source file {source_file_path} not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
 def move_extra_shaders():
     client_shaders_directory = os.path.join(minecraft_directory, 'shaderpacks')
     local_shaders_directory = 'shaderpacks'
@@ -255,7 +272,7 @@ class LaunchThread(QThread):
         # install_minecraft_version(versionid=self.version_id, minecraft_directory=minecraft_directory,
         #                           callback={'setStatus': self.update_progress_label,
         #                                     'setProgress': self.update_progress, 'setMax': self.update_progress_max})
-
+        replace_waystones_config_file()
         clear_and_move_mods('mods')
         move_extra_shaders()
         change_tutorial_step()
