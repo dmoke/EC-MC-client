@@ -14,7 +14,7 @@ import requests
 from PyQt5.QtCore import QThread, pyqtSignal, QSize, Qt
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QSpacerItem, QSizePolicy, \
-    QProgressBar, QPushButton, QApplication, QMainWindow, QCheckBox, QHBoxLayout
+    QProgressBar, QPushButton, QApplication, QMainWindow, QCheckBox, QHBoxLayout, QMessageBox
 from minecraft_launcher_lib import forge
 from minecraft_launcher_lib.command import get_minecraft_command
 from minecraft_launcher_lib.forge import find_forge_version
@@ -136,7 +136,7 @@ def is_forge_installed():
 
 def download_to_tmp(assets):
     if not assets or is_dev_environment:
-        print("No assets found for the release or in development environment.")
+        print("No assets found for the release or in the development environment.")
         return
 
     asset = assets[0]  # Assuming the first asset is a zip file
@@ -145,13 +145,17 @@ def download_to_tmp(assets):
 
     if asset_url:
         print(f"Downloading asset: {asset_name}")
-        response = requests.get(asset_url, stream=True)
 
+        # Clear the 'tmp' directory if it already exists
         tmp_dir = os.path.join(os.getcwd(), 'tmp')
+        if os.path.exists(tmp_dir):
+            shutil.rmtree(tmp_dir)
+
         os.makedirs(tmp_dir, exist_ok=True)
 
         asset_path = os.path.join(tmp_dir, asset_name)
         with open(asset_path, 'wb') as file:
+            response = requests.get(asset_url, stream=True)
             shutil.copyfileobj(response.raw, file)
 
         print(f"Asset downloaded to: {asset_path}")
@@ -353,9 +357,15 @@ class MainWindow(QMainWindow):
         self.repo_link_label.setOpenExternalLinks(True)
         version_checkbox_layout.addWidget(self.repo_link_label, 1, Qt.AlignmentFlag.AlignRight)
 
-        self.reinstall_forge_checkbox = QCheckBox("Force Reinstall Forge")
+        self.reinstall_forge_checkbox = QCheckBox("Reinstall Forge on launch")
         self.reinstall_forge_checkbox.setChecked(False)  # Set default value
         version_checkbox_layout.addWidget(self.reinstall_forge_checkbox, 2, Qt.AlignmentFlag.AlignRight)
+        # Create a QPushButton for the "Clear all data" option
+        self.delete_purge_button = QPushButton("Clear all data")
+        self.delete_purge_button.setStyleSheet("color: red;")
+        self.delete_purge_button.clicked.connect(self.confirm_purge_button)
+
+        version_checkbox_layout.addWidget(self.delete_purge_button, 1, Qt.AlignmentFlag.AlignRight)
 
         # Add the combined layout to the main vertical layout
         self.vertical_layout.addLayout(version_checkbox_layout)
@@ -383,6 +393,21 @@ class MainWindow(QMainWindow):
         self.start_progress.setMaximum(max_progress)
         self.start_progress_label.setText(label)
 
+    def confirm_purge_button(self):
+        # Implement your confirmation logic here
+        confirm_dialog = QMessageBox()
+        confirm_dialog.setIcon(QMessageBox.Question)
+        confirm_dialog.setText("Are you sure you want to purge all data? All local configs will be lost.")
+        confirm_dialog.setWindowTitle("Confirmation")
+        confirm_dialog.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        confirm_dialog.setDefaultButton(QMessageBox.No)
+
+        button_pressed = confirm_dialog.exec()
+
+        if button_pressed == QMessageBox.Yes:
+            # User clicked Yes, perform the reinstall action
+            self.perform_purge_action()
+
     def launch_game(self):
         forge_version_id = "1.20-forge-46.0.14"
 
@@ -396,17 +421,38 @@ class MainWindow(QMainWindow):
 
         self.launch_thread.start()
 
+    def perform_purge_action(self):
+        try:
+            # Delete the entire minecraft_directory and recreate it
+            shutil.rmtree(minecraft_directory)
+            create_minecraft_directory()
+
+            # Display an alert - data deleted successfully
+            QMessageBox.information(self, "Purge Successful", "All data has been purged successfully.")
+
+        except Exception as e:
+            # Handle any errors that may occur during the purge
+            QMessageBox.critical(self, "Error", f"An error occurred during the purge: {str(e)}")
+
 
 if __name__ == '__main__':
     username = ''
-    if len(sys.argv) > 2 and sys.argv[1] == '--username':
-        # If a username is provided as a command-line argument, start the LaunchThread
-        username = sys.argv[2]
+
+    # Check if there are enough arguments
+    if len(sys.argv) > 1:
+        # Iterate through arguments in reverse order
+        for i in range(len(sys.argv) - 1, 0, -1):
+            # Check if the current argument is not "--username"
+            if sys.argv[i] != '--username':
+                # Set username to the current argument
+                username = sys.argv[i]
+                break  # Stop iterating after finding the first non "--username" argument
+
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
 
-    app = QApplication(argv)
+    app = QApplication(sys.argv)
     window = MainWindow(username)
     window.resize(640, 480)
     window.show()
 
-    exit(app.exec_())
+    sys.exit(app.exec_())
