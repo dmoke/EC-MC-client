@@ -24,6 +24,7 @@ from minecraft_launcher_lib.utils import get_minecraft_directory
 # TODO: fix --username option on mac
 # TODO: Overclocking + better CPU
 # TODO: chunks not loading
+# TODO: delete griefing mod zombie boss
 
 minecraft_directory = get_minecraft_directory().replace('minecraft', 'EngineeringClubLauncher')
 TITLE = "Engineering Club MC"
@@ -355,7 +356,7 @@ class MainWindow(QMainWindow):
         version_checkbox_layout.addWidget(self.launcher_version_label, 0, Qt.AlignmentFlag.AlignLeft)
 
         self.repo_link_label = QLabel()
-        self.repo_link_label.setText('<a href="https://github.com/dmoke/EC-MC-client">GitHub Repo</a>')
+        self.repo_link_label.setText('<a href="https://github.com/dmoke/EC-MC-client">GitHub</a>')
         self.repo_link_label.setOpenExternalLinks(True)
         version_checkbox_layout.addWidget(self.repo_link_label, 1, Qt.AlignmentFlag.AlignRight)
 
