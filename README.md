@@ -1,11 +1,9 @@
-# EC-MC-client
+# Engineering Club Minecraft Launcher
 
 ## Prerequisites
 Ensure you have the following software installed on your system:
-- Java 8 or later
+- Java 17 or later
 - Python 3.8 or later
-
-If encountering `ConcurrentModificationException`, consider downgrading Java to version 8 or even Java 7.
 
 ## Installation
 Download the latest release from [here](https://github.com/dmoke/EC-MC-client/releases/latest).
