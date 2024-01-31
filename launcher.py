@@ -25,6 +25,7 @@ from minecraft_launcher_lib.utils import get_minecraft_directory
 # TODO: Overclocking + better CPU
 # TODO: chunks not loading
 # TODO: delete griefing mod zombie boss
+# TODO: fix corps to break in any claim
 
 minecraft_directory = get_minecraft_directory().replace('minecraft', 'EngineeringClubLauncher')
 TITLE = "Engineering Club MC"
