@@ -1,4 +1,4 @@
-# pyinstaller --onefile --noconsole launcher.py
+# pyinstaller --onefile --noconsole launcher.py --uac-admin
 import json
 import os
 import platform
@@ -27,6 +27,9 @@ from minecraft_launcher_lib.utils import get_minecraft_directory
 # TODO: delete griefing mod zombie boss
 # TODO: fix corps to break in any claim
 # TODO: add nogui option
+# TODO: ask admin permission
+# TODO: fix crafting table
+# TODO: hide ip with noip
 
 
 minecraft_directory = get_minecraft_directory().replace('minecraft', 'EngineeringClubLauncher')
