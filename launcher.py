@@ -30,6 +30,7 @@ from minecraft_launcher_lib.utils import get_minecraft_directory
 # TODO: ask admin permission
 # TODO: fix crafting table
 # TODO: hide ip with noip
+# TODO: get mca skins online
 
 
 minecraft_directory = get_minecraft_directory().replace('minecraft', 'EngineeringClubLauncher')
