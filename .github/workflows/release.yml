@@ -12,6 +12,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          # Ensure Git LFS content is fetched during checkout
+          fetch-depth: 0
+
+      - name: Install Git LFS
+        run: |
+          # Install Git LFS
+          sudo apt-get install git-lfs
+          # Initialize Git LFS
+          git lfs install
+          # Fetch Git LFS content
+          git lfs fetch --all
 
       - name: Prepare release directory
         run: |
