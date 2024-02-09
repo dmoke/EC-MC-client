@@ -22,13 +22,13 @@ jobs:
           sudo apt-get install git-lfs
           # Initialize Git LFS
           git lfs install
-          # Fetch Git LFS content
-          git lfs fetch --all
+          # Pull Git LFS content directly
+          git lfs pull
 
       - name: Prepare release directory
         run: |
           mkdir launcher_release
-          cp -r assets config shaderpacks launcher_release/
+          cp -r assets mods config shaderpacks launcher_release/
           echo '{"version": "${{ github.ref_name }}" }' > launcher_release/assets/version.json
           cp launcher.py launcher_release/
           cp launcher launcher_release/
@@ -37,8 +37,6 @@ jobs:
           cp servers.dat launcher_release/
           cp dist/launcher.exe launcher_release/
           cp servers.dat launcher_release/
-          # Download LFS files for mods
-          git lfs pull --include="mods/*"
 
       - name: Create Release
         id: create_release
