@@ -7,3 +7,4 @@ venv
 build
 _internal
 simplebackups
+.physics_mod_cache

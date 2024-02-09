@@ -1,6 +1,0 @@
-{
-  "category": "Body",
-  "parts": [ "body" ],
-  "hideArmor": [ "head", "chest", "legs" ],
-  "breaks": [ "Back", "Head", "Accessories", "Skirts" ]
-}
