@@ -1,3 +1,6 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:41672e5fc160bf53905b9f82873a0a3494259d27689652ce767a5f6d90c23c6e
-size 95
+{
+  "collapse": true,
+  "maxCollapseObjects": 19,
+  "collapseSpeed": 10,
+  "dropBlocks": true
+}

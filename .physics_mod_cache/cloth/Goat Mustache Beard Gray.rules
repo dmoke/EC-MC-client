@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:8b9765cf77d8a7e85957119ece4ab063947275635bc0da785c4eebf6e65692cd
-size 77
+{
+  "category": "Beards",
+  "parts": [ "head" ],
+  "ignoreParts": [ "hat" ]
+}

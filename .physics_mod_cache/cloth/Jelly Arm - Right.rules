@@ -1,3 +1,7 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:76fac21591a6a1039b3fba8e3324854bd260d7bc56ec32be1766c0f4d003d9bf
-size 313
+{
+  "category": "Right Arm",
+  "parts": [ "right_arm" ],
+  "specialTexture": "minecraft:playerskin",
+  "hideParts": [ "right_arm", "right_sleeve" ],
+  "ignoreParts": [ "body", "jacket", "left_sleeve", "left_arm", "right_sleeve", "right_arm", "head", "hat", "left_leg", "left_pants", "right_leg", "right_pants" ]
+}

@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:b1c9d2f125fd8c31d69eeb82b7e92714c2742729a1a1d7d54fffeafefd67c441
-size 215
+{
+  "category": "Head",
+  "hideArmor": [ "head" ],
+  "specialTexture": "minecraft:playerskin",
+  "hideParts": [ "head", "hat" ],
+  "hideArmor": [ "head" ],
+  "ignoreParts": [ "head", "hat" ],
+  "parts": [ "head" ]
+}

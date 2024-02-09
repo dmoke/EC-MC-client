@@ -1,3 +1,6 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:af7ff9ae150e29f29b9ba0f7010a0c8b290dcc84aaa78ec0f024a893eade0500
-size 148
+{
+  "category": "Body",
+  "parts": [ "body" ],
+  "hideArmor": [ "head", "chest", "legs" ],
+  "breaks": [ "Back", "Head", "Accessories", "Skirts" ]
+}

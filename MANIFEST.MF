@@ -1,3 +1,2 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:187bdab05f1955eeccf5fa9adb9e65da1b298ff31bd5ec9a9c1ed5cfd0cd52ed
-size 50
+Manifest-Version: 1.0
+Main-Class: RunPythonScript

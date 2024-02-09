@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:c00c85d86126a11ec5a78d2da75f7fe3c4bc5157166b3eb1fda8737c033961f9
-size 104
+{
+  "category": "Right Leg",
+  "parts": [ "right_leg" ],
+  "hideParts": [ "right_leg", "right_pants" ]
+}

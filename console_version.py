@@ -1,3 +1,20 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:0c65a3aaf2dc727d634d00beebadd7e19570375bed6ae3cb33b6a09b99368e80
-size 681
+import minecraft_launcher_lib
+import subprocess
+
+minecraft_directory = minecraft_launcher_lib.utils.get_minecraft_directory().replace('minecraft', 'mjnlauncher')
+
+version = input('Enter Minecraft version: ')
+username = input('Enter Username: ')
+
+# Install Minecraft version with all dependencies needed
+minecraft_launcher_lib.install.install_minecraft_version(versionid=version, minecraft_directory=minecraft_directory)
+
+# Define launch options
+options = {
+    'username': username,
+    'uuid': '',
+    'token': ''
+}
+
+# Launch Minecraft
+subprocess.call(minecraft_launcher_lib.command.get_minecraft_command(version=version, minecraft_directory=minecraft_directory, options=options))

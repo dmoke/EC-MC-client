@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:6c287032b625e2dcb3a374caf05eb3bf6941b58d367b7d8738260799345203f8
-size 82
+{
+  "category": "Accessories",
+  "hideArmor": [ "chest" ],
+  "parts": [ "body" ]
+}

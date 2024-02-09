@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:a2308338e119468750af7d9e8f2c86b22aa562e3eb594432ce9609e610bc7699
-size 109
+{
+  "category": "Left Arm",
+  "parts": [ "left_arm" ],
+  "ignoreParts": [ "body", "jacket", "head", "hat" ]
+}

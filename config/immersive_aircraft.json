@@ -1,3 +1,22 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:eee5c730b44e7cf6066afb10adc14cb81ac1b10fe8ef49c438a4be26fc2683b6
-size 543
+{
+  "separateCamera": true,
+  "useThirdPersonByDefault": true,
+  "enableTrails": true,
+  "enableAnimatedSails": true,
+  "renderDistance": 192.0,
+  "fuelConsumption": 1.0,
+  "windClearWeather": 1.0,
+  "windRainWeather": 3.0,
+  "windThunderWeather": 3.0,
+  "collisionDamage": true,
+  "onlyPlayerCanDestroyAircraft": true,
+  "burnFuelInCreative": false,
+  "acceptVanillaFuel": true,
+  "useCustomKeybindSystem": true,
+  "crashDamage": 2.0,
+  "preventKillThroughCrash": true,
+  "fuelList": {
+    "minecraft:blaze_powder": 1200
+  },
+  "version": 1
+}

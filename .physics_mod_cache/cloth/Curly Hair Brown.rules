@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:eb5751a6f2ebbeb4f0a87d4b1aa0a1f32a1ce3d02379f16deb18739ec593308a
-size 74
+{
+  "category": "Head",
+  "hideArmor": [ "head" ],
+  "parts": [ "head" ]
+}
